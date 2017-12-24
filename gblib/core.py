@@ -1,39 +1,23 @@
 from . import registers
-
-def add(opA, opB):
-    return opA + opB
-
-def sub(opA, opB):
-    return opA - opB
-
-
-#op : [func, [args, string=reg, num=reladdr], dest]
-func = {
-        0x87 : [add, ['a', 'b'], 'a'],
-        0x80 : [add, ['a', 'b'], 'a'],
-        0x81 : [add, ['a', 'c'], 'a'],
-        0x82 : [add, ['a', 'd'], 'a'],
-        0x83 : [add, ['a', 'e'], 'a'],
-        0x84 : [add, ['a', 'h'], 'a'],
-        0x85 : [add, ['a', 'l'], 'a']
-      }
+from . import functable as f
 
 class core():
     def __init__(self):
         self.reg = registers.registers()
-        
-    def execute(self, inst):
-        
-        lookup = func[inst[0]]
-        res = lookup[0](self.reg.getReg(lookup[1]), self.reg.getReg(lookup[2]))
-        self.reg.setReg('a', res)
-        self.reg.dumpState()
-        
     
-    def decode(self, opcode, index):
-        print(str(opcode) + " at " + str(index))
+    def decodeAndExec(self, opc, index):
+        print(str(hex(opc)) + " at " + str(index))
+        if f[opc][0] == "add":
+            res = self.reg.getReg(f[opc][1][0]) + self.reg.getReg(f[opc][1][1])
+            self.reg.setBit('f', 'z', res == 0)
+        #elif f[opc][0] == ""
+        elif f[opc][0] == "nimp":
+            print("OPCODE NOT IMPLEMENTED")
+        else:
+            print("OPCODE NOT FOUND")
         
-        self.execute(self, decoded)
+        if f[opc][2] is not None:
+            self.reg.setReg(f[opc][2], res)
     
     def parseROM(self, rom):
         self.rom = []

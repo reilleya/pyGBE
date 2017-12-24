@@ -24,6 +24,20 @@ class register16():
     def setValue(self, value):
         self.value = value & self.fullMask
         
+    def getBit(self, bit, upper = True):
+        return (self.value >> (bit + upper * self.upperShift)) & 1
+        
+    def setBit(self, bit, value, upper = True):
+        if not upper:
+            if type(bit) is str:
+                if bit == 'z': bit = 7 
+                elif bit == 'n': bit = 6
+                elif bit == 'h': bit = 5
+                elif bit == 'c': bit = 4
+        bit += (upper * self.upperShift)
+        cutout = ~(1 << bit) & 0xFFFF
+        self.value = (self.value & cutout) | (value << bit)
+        
     def dumpState(self, mode, label = None):
         length = 4 if mode == 'x' else 16
         st = format(self.value, mode).zfill(length)
@@ -50,20 +64,20 @@ class registers():
     
     def setReg(self, reg, value):
         r = reg.lower()
-        if r == 'a': return self.afReg.setUpper(value)
-        elif r == 'b': return self.bcReg.setUpper(value)
-        elif r == 'c': return self.bcReg.setLower(value)
-        elif r == 'd': return self.deReg.setUpper(value)
-        elif r == 'e': return self.deReg.setLower(value)
-        elif r == 'f': return self.afReg.setLower(value)
-        elif r == 'h': return self.hlReg.setUpper(value)
-        elif r == 'l': return self.hlReg.setLower(value)
-        elif r == 'af': return self.afReg.setValue(value)
-        elif r == 'bc': return self.bcReg.setValue(value)
-        elif r == 'de': return self.deReg.setValue(value)
-        elif r == 'hl': return self.hlReg.setValue(value)
-        elif r == 'sp': return self.spReg.setValue(value)
-        elif r == 'pc':return self.pcReg.setValue(value)
+        if r == 'a': self.afReg.setUpper(value)
+        elif r == 'b': self.bcReg.setUpper(value)
+        elif r == 'c': self.bcReg.setLower(value)
+        elif r == 'd': self.deReg.setUpper(value)
+        elif r == 'e': self.deReg.setLower(value)
+        elif r == 'f': self.afReg.setLower(value)
+        elif r == 'h': self.hlReg.setUpper(value)
+        elif r == 'l': self.hlReg.setLower(value)
+        elif r == 'af': self.afReg.setValue(value)
+        elif r == 'bc': self.bcReg.setValue(value)
+        elif r == 'de': self.deReg.setValue(value)
+        elif r == 'hl': self.hlReg.setValue(value)
+        elif r == 'sp': self.spReg.setValue(value)
+        elif r == 'pc': self.pcReg.setValue(value)
         else:
             print("UNKNOWN REG")
         
@@ -85,3 +99,30 @@ class registers():
         elif r == 'pc':return self.pcReg.getValue()
         else:
             print("UNKNOWN REG")
+            
+    def setBit(self, r, bit, value):
+        if r == 'a': return self.afReg.setBit(bit, value, True)
+        elif r == 'b': return self.bcReg.setBit(bit, value, True)
+        elif r == 'c': return self.bcReg.setBit(bit, value, False)
+        elif r == 'd': return self.deReg.setBit(bit, value, True)
+        elif r == 'e': return self.deReg.setBit(bit, value, False)
+        elif r == 'f': return self.afReg.setBit(bit, value, False)
+        elif r == 'h': return self.bcReg.setBit(bit, value, True)
+        elif r == 'l': return self.bcReg.setBit(bit, value, False)
+        #elif r == 'HL'
+        else:
+            print("UNKNOWN REG")
+        
+    def getBit(self, r, bit):
+        if r == 'a': return self.afReg.getBit(bit, True)
+        elif r == 'b': return self.bcReg.getBit(bit, True)
+        elif r == 'c': return self.bcReg.getBit(bit, False)
+        elif r == 'd': return self.deReg.getBit(bit, True)
+        elif r == 'e': return self.deReg.getBit(bit, False)
+        elif r == 'f': return self.afReg.getBit(bit, False)
+        elif r == 'h': return self.bcReg.getBit(bit, True)
+        elif r == 'l': return self.bcReg.getBit(bit, False)
+        #elif r == 'HL'
+        else:
+            print("UNKNOWN REG")
+        
