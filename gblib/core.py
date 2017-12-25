@@ -4,10 +4,16 @@ from . import functable as f
 class core():
     def __init__(self):
         self.reg = registers.registers()
-        self.memory = []
+        self.rom = []
+    
+    def loop(self):
+        ind = self.reg.getReg('pc')
+        op = self.getMem(ind)
+        print('Running ' + str(hex(op)) + ' at ' + hex(ind))
+        self.decodeAndExec(op, ind)
     
     def decodeAndExec(self, opc, index):
-        print(str(hex(opc)) + " at " + str(index))
+        step = True
         if f[opc][0] == "add":
             res = self.reg.getReg(f[opc][1][0]) + self.reg.getReg(f[opc][1][1])
             self.reg.setBit('f', 'z', res == 0)
@@ -104,6 +110,13 @@ class core():
         elif f[opc][0] == "mov":
             res = self.reg.getReg(f[opc][1][0])
         
+        elif f[opc][0] == "jump":
+            self.reg.setReg('pc', (self.getMem(index + f[opc][1][0]) << 8) + self.getMem(index + f[opc][1][1]))
+            step = False
+        
+        elif f[opc][0] == "nop":
+            pass
+        
         elif f[opc][0] == "nimp":
             print("OPCODE NOT IMPLEMENTED")
             
@@ -112,14 +125,16 @@ class core():
         
         if f[opc][2] is not None:
             self.reg.setReg(f[opc][2], res)
+
+        if step:
+            self.reg.setReg('pc', self.reg.getReg('pc') + f[opc][3])
     
     def parseROM(self, rom):
-        self.rom = []
         with open(rom,'rb') as file:
             cont = file.read()
             for c in cont:
-                self.rom.append(hex(c))
+                self.rom.append(int(c))
         #print(self.rom)
     
     def getMem(self, index):
-        return self.memory[index]
+        return self.rom[index]

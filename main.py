@@ -2,16 +2,19 @@ import gblib
 
 testCore = gblib.core()
 
-testCore.memory = [1, 7, 6, 7, 6]
+testCore.reg.setReg('af', 0x01B0)
+testCore.reg.setReg('bc', 0x0013)
+testCore.reg.setReg('de', 0x00D8)
+testCore.reg.setReg('hl', 0x014D)
+testCore.reg.setReg('sp', 0xFFFE)
+testCore.reg.setReg('pc', 0x0100)
 
-#testCore.reg.dumpState()
-#testCore.reg.setReg('sp', 1+2+4+8)
-#testCore.reg.dumpState()
-#testCore.reg.setReg('D', 64)
-#testCore.reg.dumpState()
+#testCore.decodeAndExec(0x06, 0x1)
 
-testCore.decodeAndExec(0x06, 0x1)
+testCore.reg.dumpState('x')
 
-testCore.reg.dumpState()
+testCore.parseROM("../roms/sml.gb")
 
-#testCore.parseROM("../roms/bios.gb")
+for i in range(0, 5):
+    testCore.loop()
+    testCore.reg.dumpState('x')
