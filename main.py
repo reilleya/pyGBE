@@ -15,6 +15,6 @@ testCore.reg.dumpState('x')
 
 testCore.parseROM("../roms/sml.gb")
 
-for i in range(0, 5):
+for i in range(0, 25):
     testCore.loop()
     testCore.reg.dumpState('x')

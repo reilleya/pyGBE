@@ -114,11 +114,23 @@ class core():
             self.reg.setReg('pc', (self.getMem(index + f[opc][1][0]) << 8) + self.getMem(index + f[opc][1][1]))
             step = False
         
+        elif f[opc][0] == "disInt":
+            print("Disabling interrupts - THIS DOES NOTHING ATM")
+            
+        elif f[opc][0] == "saveMem":
+            offset = self.getMem(index + f[opc][1][2])
+            self.setMem(f[opc][1][1] + offset, self.reg.getReg(f[opc][1][0]))
+        
+        elif f[opc][0] == "loadMem":
+            offset = self.getMem(index + f[opc][1][1])
+            print(hex(offset))
+            res = self.getMem(f[opc][1][0] + offset)
+        
         elif f[opc][0] == "nop":
             pass
         
         elif f[opc][0] == "nimp":
-            print("OPCODE NOT IMPLEMENTED")
+            raise NameError("OP " + str(hex(opc)) + " not implemented!")
             
         else:
             print("OPCODE NOT FOUND")
@@ -138,3 +150,7 @@ class core():
     
     def getMem(self, index):
         return self.rom[index]
+        
+    def setMem(self, index, value):
+        print("Saving " + str(hex(value)) + " to " + str(hex(index)))
+        self.rom[index] = value
