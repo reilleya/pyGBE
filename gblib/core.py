@@ -1,6 +1,9 @@
 from . import registers
 from . import functable as f
 
+def tc(num):
+    return num - (256 * bool(num & 0x80))
+
 class core():
     def __init__(self):
         self.reg = registers.registers()
@@ -9,7 +12,7 @@ class core():
     def loop(self):
         ind = self.reg.getReg('pc')
         op = self.getMem(ind)
-        print('Running ' + str(hex(op)) + ' at ' + hex(ind))
+        #print('Running ' + str(hex(op)) + ' at ' + hex(ind))
         self.decodeAndExec(op, ind)
     
     def decodeAndExec(self, opc, index):
@@ -49,18 +52,22 @@ class core():
                 self.reg.setBit('f', 'c', self.reg.getReg(f[opc][1][0]) + self.reg.getReg(f[opc][1][1])  + self.reg.getBit('f', 'c') & 0x100)
             
         elif f[opc][0] == "sub":
-            res = self.reg.getReg(f[opc][1][0]) - self.reg.getReg(f[opc][1][1])
+            if type(f[opc][1][1]) is int:
+                sv = self.getMem(index + f[opc][1][1])
+            else:
+                sv = self.reg.getReg(f[opc][1][1])
+            res = self.reg.getReg(f[opc][1][0]) - sv
             self.reg.setBit('f', 'z', res == 0)
             self.reg.setBit('f', 'n', True)
-            self.reg.setBit('f', 'h', not (self.reg.getReg(f[opc][1][0]) & 0x0F) < (self.reg.getReg(f[opc][1][1]) & 0x0F))
-            self.reg.setBit('f', 'c', not self.reg.getReg(f[opc][1][0]) < self.reg.getReg(f[opc][1][1]))
+            self.reg.setBit('f', 'h', (self.reg.getReg(f[opc][1][0]) & 0x0F) < sv & 0x0F)
+            self.reg.setBit('f', 'c', self.reg.getReg(f[opc][1][0]) < sv)
             
         elif f[opc][0] == "sbc":
             res = self.reg.getReg(f[opc][1][0]) - (self.reg.getReg(f[opc][1][1]) - self.reg.getBit('f', 'c'))
             self.reg.setBit('f', 'z', res == 0)
             self.reg.setBit('f', 'n', True)
-            self.reg.setBit('f', 'h', not (self.reg.getReg(f[opc][1][0]) & 0x0F) < (self.reg.getReg(f[opc][1][1]) - self.reg.getBit('f', 'c') & 0x0F))
-            self.reg.setBit('f', 'c', not self.reg.getReg(f[opc][1][0]) < self.reg.getReg(f[opc][1][1]) - self.reg.getBit('f', 'c'))
+            self.reg.setBit('f', 'h', (self.reg.getReg(f[opc][1][0]) & 0x0F) < (self.reg.getReg(f[opc][1][1]) - self.reg.getBit('f', 'c') & 0x0F))
+            self.reg.setBit('f', 'c', self.reg.getReg(f[opc][1][0]) < self.reg.getReg(f[opc][1][1]) - self.reg.getBit('f', 'c'))
         
         elif f[opc][0] == "and":
             res = self.reg.getReg(f[opc][1][0]) & self.reg.getReg(f[opc][1][1])
@@ -113,6 +120,12 @@ class core():
         elif f[opc][0] == "jump":
             self.reg.setReg('pc', (self.getMem(index + f[opc][1][0]) << 8) + self.getMem(index + f[opc][1][1]))
             step = False
+            
+        elif f[opc][0] == "jumpR":
+            if (self.reg.getReg('f') & f[opc][1][0]) == f[opc][1][1]:
+                #step = False <- maybe not?
+                jump = tc(self.getMem(index + f[opc][1][2]))
+                self.reg.setReg('pc', self.reg.getReg('pc') + jump)
         
         elif f[opc][0] == "disInt":
             print("Disabling interrupts - THIS DOES NOTHING ATM")
@@ -123,7 +136,6 @@ class core():
         
         elif f[opc][0] == "loadMem":
             offset = self.getMem(index + f[opc][1][1])
-            print(hex(offset))
             res = self.getMem(f[opc][1][0] + offset)
         
         elif f[opc][0] == "nop":
@@ -152,5 +164,5 @@ class core():
         return self.rom[index]
         
     def setMem(self, index, value):
-        print("Saving " + str(hex(value)) + " to " + str(hex(index)))
+        #print("Saving " + str(hex(value)) + " to " + str(hex(index)))
         self.rom[index] = value

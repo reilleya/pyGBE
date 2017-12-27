@@ -32,7 +32,7 @@ functable = {
         0x1d : ["dec", ['e'], 'e', 1, 4],
         0x1e : ["loadcn", [1], 'e', 2, 8],
         0x1f : ["nimp"],
-        0x20 : ["nimp"],
+        0x20 : ["jumpR", [0x80, 0x0, 1], None, 2, 8],
         0x21 : ["loadcn16", [1, 2], 'hl', 3, 12],
         0x22 : ["nimp"],
         0x23 : ["inc16", ['hl'], 'hl', 1, 8],
@@ -40,7 +40,7 @@ functable = {
         0x25 : ["dec", ['h'], 'h', 1, 4],
         0x26 : ["loadcn", [1], 'h', 2, 8],
         0x27 : ["nimp"],
-        0x28 : ["nimp"],
+        0x28 : ["jumpR", [0x80, 0x80, 1], None, 2, 8],
         0x29 : ["add", ['hl', 'hl'], 'hl', 1, 8],
         0x2a : ["nimp"],
         0x2b : ["dec16", ['hl'], 'hl', 1, 8],
@@ -48,7 +48,7 @@ functable = {
         0x2d : ["dec", ['l'], 'l', 1, 4],
         0x2e : ["loadcn", [1], 'l', 2, 8],
         0x2f : ["nimp"],
-        0x30 : ["nimp"],
+        0x30 : ["jumpR", [0x10, 0x0, 1], None, 2, 8],
         0x31 : ["loadcn16", [1, 2], 'sp', 3, 12],
         0x32 : ["nimp"],
         0x33 : ["inc16", ['sp'], 'sp', 1, 8],
@@ -56,7 +56,7 @@ functable = {
         0x35 : ["nimp"],
         0x36 : ["nimp"],
         0x37 : ["nimp"],
-        0x38 : ["nimp"],
+        0x38 : ["jumpR", [0x10, 0x10, 1], None, 2, 8],
         0x39 : ["add", ['sp', 'hl'], 'hl', 1, 8],
         0x3a : ["nimp"],
         0x3b : ["dec16", ['sp'], 'sp', 1, 8],
@@ -254,7 +254,7 @@ functable = {
         0xfb : ["nimp"],
         0xfc : ["nimp"],
         0xfd : ["nimp"],
-        0xfe : ["nimp"],
+        0xfe : ["sub", ['a', 1], None, 2, 8], #CP
         0xff : ["nimp"]
       }
 

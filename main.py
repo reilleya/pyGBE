@@ -1,4 +1,4 @@
-import gblib
+import gblib, time
 
 testCore = gblib.core()
 
@@ -15,6 +15,14 @@ testCore.reg.dumpState('x')
 
 testCore.parseROM("../roms/sml.gb")
 
-for i in range(0, 25):
+nin = 1000
+
+st = time.time()
+
+for i in range(0, nin):
     testCore.loop()
-    testCore.reg.dumpState('x')
+    #testCore.reg.dumpState('x')
+
+testCore.reg.dumpState('x')
+
+print(nin/(time.time() - st))
