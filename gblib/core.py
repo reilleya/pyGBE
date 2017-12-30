@@ -132,7 +132,7 @@ class core():
                 self.reg.setReg('pc', self.reg.getReg('pc') + jump)
         
         elif f[opc][0] == "disInt":
-            self.interruptsEnabled = False # This is probably wrong
+            self.toggleInterrupts(False)
             
         elif f[opc][0] == "saveMem":
             offset = self.getMem(index + f[opc][1][2])
@@ -150,12 +150,18 @@ class core():
             res = loc - 2
         
         elif f[opc][0] == "pop16":
-            loc = self.reg.getReg("sp")
-            v = [self.getMem(loc), self.getMem(loc + 1)]
-            print(v)
-            res = (v[1] + (v[0] << 8))
-            self.reg.setReg("sp", loc + 2)
+            res = self.pop()
 
+        elif f[opc][0] == "ret": #["ret", [mask, care, true/false], pc, 1, 8]
+            res = self.reg.getReg("pc")
+            if f[opc][1][0] is None:
+                res = self.pop()
+                if f[opc][1][3]:
+                    self.toggleInterrupts(True)
+                    
+            elif bool((self.reg.getReg(f[opc][1][0]) & f[opc][1][1]) & f[opc][1][2]):
+                res = self.pop()
+            
         elif f[opc][0] == "nop":
             pass
         
@@ -173,6 +179,9 @@ class core():
             
         self.totalCycles += f[opc][4]
     
+    def toggleInterrupts(self, setting):
+        self.interruptsEnabled = setting
+    
     def parseROM(self, rom):
         with open(rom,'rb') as file:
             cont = file.read()
@@ -187,6 +196,12 @@ class core():
     def setMem(self, index, value):
         #print("Saving " + str(hex(value)) + " to " + str(hex(index)))
         self.rom[index] = value
+    
+    def pop(self):
+        loc = self.reg.getReg("sp")
+        v = [self.getMem(loc), self.getMem(loc + 1)]
+        self.reg.setReg("sp", loc + 2)
+        return v[1] + (v[0] << 8)
     
     def checkInterrupts(self):
         if self.interruptsEnabled:
