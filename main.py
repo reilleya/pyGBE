@@ -13,16 +13,15 @@ testCore.reg.setReg('pc', 0x0100)
 
 testCore.reg.dumpState('x')
 
-testCore.parseROM("../roms/sml.gb")
 
-nin = 1000
-
+# Benchmark
+"""testCore.parseROM("../roms/sml.gb")
+nin = 10000
 st = time.time()
-
 for i in range(0, nin):
     testCore.loop()
     #testCore.reg.dumpState('x')
-
 testCore.reg.dumpState('x')
+print(testCore.totalCycles)
+print(time.time() - st)"""
 
-print(nin/(time.time() - st))

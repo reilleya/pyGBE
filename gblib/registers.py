@@ -55,15 +55,15 @@ class registers():
     
     def dumpState(self, mode = 'b'):
         print("Reg State:")
-        self.afReg.dumpState(mode, "AF")
-        self.bcReg.dumpState(mode, "BC")
-        self.deReg.dumpState(mode, "DE")
-        self.hlReg.dumpState(mode, "HL")
-        self.spReg.dumpState(mode, "SP")
-        self.pcReg.dumpState(mode, "PC")
+        self.afReg.dumpState(mode, "af")
+        self.bcReg.dumpState(mode, "bc")
+        self.deReg.dumpState(mode, "de")
+        self.hlReg.dumpState(mode, "hl")
+        self.spReg.dumpState(mode, "sp")
+        self.pcReg.dumpState(mode, "pc")
     
     def setReg(self, reg, value):
-        r = reg.lower()
+        r = reg
         if r == 'a': self.afReg.setUpper(value)
         elif r == 'b': self.bcReg.setUpper(value)
         elif r == 'c': self.bcReg.setLower(value)
@@ -82,7 +82,7 @@ class registers():
             print("UNKNOWN REG")
         
     def getReg(self, reg):
-        r = reg.lower()
+        r = reg
         if r == 'a': return self.afReg.getUpper()
         elif r == 'b': return self.bcReg.getUpper()
         elif r == 'c': return self.bcReg.getLower()

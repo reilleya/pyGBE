@@ -8,12 +8,16 @@ class core():
     def __init__(self):
         self.reg = registers.registers()
         self.rom = []
+        
+        self.totalCycles = 0
+        self.interruptsEnabled = True
     
     def loop(self):
         ind = self.reg.getReg('pc')
         op = self.getMem(ind)
         #print('Running ' + str(hex(op)) + ' at ' + hex(ind))
         self.decodeAndExec(op, ind)
+        self.checkInterrupts()
     
     def decodeAndExec(self, opc, index):
         step = True
@@ -128,7 +132,7 @@ class core():
                 self.reg.setReg('pc', self.reg.getReg('pc') + jump)
         
         elif f[opc][0] == "disInt":
-            print("Disabling interrupts - THIS DOES NOTHING ATM")
+            self.interruptsEnabled = False # This is probably wrong
             
         elif f[opc][0] == "saveMem":
             offset = self.getMem(index + f[opc][1][2])
@@ -137,7 +141,21 @@ class core():
         elif f[opc][0] == "loadMem":
             offset = self.getMem(index + f[opc][1][1])
             res = self.getMem(f[opc][1][0] + offset)
+            
+        elif f[opc][0] == "push16":
+            val = self.reg.getReg(f[opc][1][0])
+            loc = self.reg.getReg("sp")
+            self.setMem(loc - 1, val & 0x00FF)
+            self.setMem(loc - 2, (val & 0xFF00) >> 8)
+            res = loc - 2
         
+        elif f[opc][0] == "pop16":
+            loc = self.reg.getReg("sp")
+            v = [self.getMem(loc), self.getMem(loc + 1)]
+            print(v)
+            res = (v[1] + (v[0] << 8))
+            self.reg.setReg("sp", loc + 2)
+
         elif f[opc][0] == "nop":
             pass
         
@@ -145,13 +163,15 @@ class core():
             raise NameError("OP " + str(hex(opc)) + " not implemented!")
             
         else:
-            print("OPCODE NOT FOUND")
+            raise NameError("Opcode not found")
         
         if f[opc][2] is not None:
             self.reg.setReg(f[opc][2], res)
 
         if step:
             self.reg.setReg('pc', self.reg.getReg('pc') + f[opc][3])
+            
+        self.totalCycles += f[opc][4]
     
     def parseROM(self, rom):
         with open(rom,'rb') as file:
@@ -161,8 +181,23 @@ class core():
         #print(self.rom)
     
     def getMem(self, index):
+        #print("Loading " + str(index))
         return self.rom[index]
         
     def setMem(self, index, value):
         #print("Saving " + str(hex(value)) + " to " + str(hex(index)))
         self.rom[index] = value
+    
+    def checkInterrupts(self):
+        if self.interruptsEnabled:
+            intf = self.getMem(0xFF0F) & self.getMem(0xFFFF)
+            if intf & 0x1: # Bit 0, V-blank
+                print("V-blank")
+            if intf & 0x2: # Bit 1, LCDC
+                print("LCDC")
+            if intf & 0x4: # Bit 2, Timer
+                print("Timer")
+            if intf & 0x8: # Bit 3, Serial I/O
+                print("Serial transfer complete")
+            if intf & 0x10: # Bit 4, Pin flip
+                print("Bit flip")
