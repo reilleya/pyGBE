@@ -152,7 +152,7 @@ class core():
         elif f[opc][0] == "pop16":
             res = self.pop()
 
-        elif f[opc][0] == "ret": #["ret", [mask, care, true/false], pc, 1, 8]
+        elif f[opc][0] == "ret":
             res = self.reg.getReg("pc")
             if f[opc][1][0] is None:
                 res = self.pop()
@@ -161,7 +161,15 @@ class core():
                     
             elif bool((self.reg.getReg(f[opc][1][0]) & f[opc][1][1]) & f[opc][1][2]):
                 res = self.pop()
-            
+        
+        elif f[opc][0] == "rst":
+            val = self.reg.getReg("pc")
+            loc = self.reg.getReg("sp")
+            self.setMem(loc - 1, val & 0x00FF)
+            self.setMem(loc - 2, (val & 0xFF00) >> 8)
+            self.reg.setReg("sp", loc - 2)
+            res = f[opc][1][0]
+        
         elif f[opc][0] == "nop":
             pass
         

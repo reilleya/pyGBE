@@ -199,7 +199,7 @@ functable = {
         0xc4 : ["nimp"],
         0xc5 : ["push16", ['bc'], 'sp', 1, 16],
         0xc6 : ["nimp"],
-        0xc7 : ["nimp"],
+        0xc7 : ["rst", [0x00], "pc", 1, 32],
         0xc8 : ["ret", ['f', 0x80, 0x80, False], "pc", 1, 8],
         0xc9 : ["ret", [None, None, None, False], "pc", 1, 8],
         0xca : ["nimp"],
@@ -207,7 +207,7 @@ functable = {
         0xcc : ["nimp"],
         0xcd : ["nimp"],
         0xce : ["nimp"],
-        0xcf : ["nimp"],
+        0xcf : ["rst", [0x08], "pc", 1, 32],
         0xd0 : ["ret", ['f', 0x8, 0x0, False], "pc", 1, 8],
         0xd1 : ["pop16", [], 'de', 1, 12],
         0xd2 : ["nimp"],
@@ -215,7 +215,7 @@ functable = {
         0xd4 : ["nimp"],
         0xd5 : ["push16", ['de'], 'sp', 1, 16],
         0xd6 : ["nimp"],
-        0xd7 : ["nimp"],
+        0xd7 : ["rst", [0x10], "pc", 1, 32],
         0xd8 : ["ret", ['f', 0x8, 0x8, False], "pc", 1, 8],
         0xd9 : ["ret", [None, None, None, True], "pc", 1, 8],
         0xda : ["nimp"],
@@ -223,7 +223,7 @@ functable = {
         0xdc : ["nimp"],
         0xdd : ["nimp"],
         0xde : ["nimp"],
-        0xdf : ["nimp"],
+        0xdf : ["rst", [0x18], "pc", 1, 32],
         0xe0 : ["saveMem", ['a', 0xFF00, 1], None, 2, 12],
         0xe1 : ["pop16", [], 'hl', 1, 12],
         0xe2 : ["nimp"],
@@ -231,7 +231,7 @@ functable = {
         0xe4 : ["nimp"],
         0xe5 : ["push16", ['hl'], 'sp', 1, 16],
         0xe6 : ["nimp"],
-        0xe7 : ["nimp"],
+        0xe7 : ["rst", [0x20], "pc", 1, 32],
         0xe8 : ["addcn", ['sp', 1], 'sp', 2, 16],
         0xe9 : ["nimp"],
         0xea : ["nimp"],
@@ -239,7 +239,7 @@ functable = {
         0xec : ["nimp"],
         0xed : ["nimp"],
         0xee : ["nimp"],
-        0xef : ["nimp"],
+        0xef : ["rst", [0x28], "pc", 1, 32],
         0xf0 : ["loadMem", [0xFF00, 1], 'a', 2, 12],
         0xf1 : ["pop16", [], 'af', 1, 12],
         0xf2 : ["nimp"],
@@ -247,7 +247,7 @@ functable = {
         0xf4 : ["nimp"],
         0xf5 : ["push16", ['af'], 'sp', 1, 16],
         0xf6 : ["nimp"],
-        0xf7 : ["nimp"],
+        0xf7 : ["rst", [0x30], "pc", 1, 32],
         0xf8 : ["nimp"],
         0xf9 : ["load", ['hl'], 'sp', 1, 8],
         0xfa : ["nimp"],
@@ -255,7 +255,7 @@ functable = {
         0xfc : ["nimp"],
         0xfd : ["nimp"],
         0xfe : ["sub", ['a', 1], None, 2, 8], #CP
-        0xff : ["nimp"]
+        0xff : ["rst", [0x38], "pc", 1, 32]
       }
 
 def validate(ftable):
