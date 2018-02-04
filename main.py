@@ -12,7 +12,7 @@ testCore.reg.setReg('pc', 0x0100)
 #testCore.decodeAndExec(0x06, 0x1)
 
 testCore.reg.dumpState('x')
-
+print(testCore.clock)
 
 # Benchmark
 """testCore.parseROM("../roms/sml.gb")

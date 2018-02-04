@@ -1,5 +1,6 @@
 from . import registers
 from . import functable as f
+from . import clock
 
 def tc(num):
     return num - (256 * bool(num & 0x80))
@@ -8,6 +9,8 @@ class core():
     def __init__(self):
         self.reg = registers.registers()
         self.rom = []
+        
+        self.clock = clock()
         
         self.totalCycles = 0
         self.interruptsEnabled = True
@@ -185,7 +188,7 @@ class core():
         if step:
             self.reg.setReg('pc', self.reg.getReg('pc') + f[opc][3])
             
-        self.totalCycles += f[opc][4]
+        self.clock.stepCycles(f[opc][4])
     
     def toggleInterrupts(self, setting):
         self.interruptsEnabled = setting
