@@ -1,6 +1,6 @@
 import gblib, time
 
-testCore = gblib.core()
+testCore = gblib.core("../roms/sml.gb")
 
 testCore.reg.setReg('af', 0x01B0)
 testCore.reg.setReg('bc', 0x0013)

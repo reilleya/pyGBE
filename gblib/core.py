@@ -1,19 +1,27 @@
 from . import registers
 from . import functable as f
 from . import clock
+from . import rom
+from . import memory
 
 def tc(num):
     return num - (256 * bool(num & 0x80))
 
 class core():
-    def __init__(self):
+    def __init__(self, romfile = None):
         self.reg = registers.registers()
-        self.rom = []
+        
+        self.rom = None
+        if romfile is not None:
+            with open(romfile, "rb") as rfile:
+                self.rom = rom.rom(rfile.read())
+        self.mem = memory.memory(self)
         
         self.clock = clock()
         
         self.totalCycles = 0
         self.interruptsEnabled = True
+        self.interruptBuff = 0x0
     
     def loop(self):
         ind = self.reg.getReg('pc')
@@ -150,7 +158,7 @@ class core():
             loc = self.reg.getReg("sp")
             self.setMem(loc - 1, val & 0x00FF)
             self.setMem(loc - 2, (val & 0xFF00) >> 8)
-            res = loc - 2
+            self.reg.setReg("sp", loc - 2)
         
         elif f[opc][0] == "pop16":
             res = self.pop()
@@ -200,13 +208,12 @@ class core():
                 self.rom.append(int(c))
         #print(self.rom)
     
-    def getMem(self, index):
-        #print("Loading " + str(index))
-        return self.rom[index]
+    def getMem(self, index):    # Refactor this away
+        return self.mem.read(index)
         
-    def setMem(self, index, value):
+    def setMem(self, index, value):     # Refactor this away
         #print("Saving " + str(hex(value)) + " to " + str(hex(index)))
-        self.rom[index] = value
+        self.mem.write(index, value)
     
     def pop(self):
         loc = self.reg.getReg("sp")
