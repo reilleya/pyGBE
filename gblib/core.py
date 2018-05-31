@@ -152,7 +152,12 @@ class core():
         elif f[opc][0] == "loadMem":
             offset = self.getMem(index + f[opc][1][1])
             res = self.getMem(f[opc][1][0] + offset)
+        
+        elif f[opc][0] == "ldd":
+            self.setMem(self.reg.getReg(f[opc][1][1]), self.reg.getReg(f[opc][1][0]))
+            res = self.reg.getReg(f[opc][1][1]) - 1
             
+        
         elif f[opc][0] == "push16":
             val = self.reg.getReg(f[opc][1][0])
             loc = self.reg.getReg("sp")
