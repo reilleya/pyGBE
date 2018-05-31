@@ -3,6 +3,7 @@ from . import functable as f
 from . import clock
 from . import rom
 from . import memory
+from . import display
 from . import interrupts
 
 def tc(num):
@@ -20,12 +21,14 @@ class core():
         self.mem = memory.memory(self)
         self.int = interrupts.interrupts(self)
         self.clock = clock(self)
+        self.disp = display.display(self)
         
         self.totalCycles = 0
         self.interruptsEnabled = True
         self.interruptBuff = 0x0
     
     def loop(self):
+        self.disp.update()
         self.int.update()
         ind = self.reg.getReg('pc')
         op = self.getMem(ind)

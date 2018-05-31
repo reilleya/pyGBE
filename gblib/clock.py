@@ -10,6 +10,11 @@ class clock():
         self.cycles += cycles
         # Check timers
         
+    def read(self, loc):
+        return 0
+        
+    def write(self, loc, value):
+        pass
         
     @property
     def time(self):

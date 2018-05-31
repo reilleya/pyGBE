@@ -31,8 +31,23 @@ class memory():
         elif loc < 0xFF00:                          # Empty?
             raise MemoryException("Attempted to read from empty " + str(hex(loc)))
             
-        elif loc < 0xFF4C:                          # IO ports
-            raise MemoryException("IO port reads not supported " + str(hex(loc)))
+        elif loc == 0xFF00:
+            raise MemoryException("Gamepad reads not supported " + str(hex(loc)))
+        
+        elif loc < 0xFF03:
+            raise MemoryException("Serial reads not supported " + str(hex(loc)))
+            
+        elif loc < 0xFF08:
+            return self.core.clock.read(loc)
+        
+        elif loc == 0xFF0F:
+            return self.core.int.read(loc)
+            
+        elif loc < 0xFF3F:
+            raise MemoryException("Sound reads not supported " + str(hex(loc)))
+        
+        elif loc < 0XFF4C:
+            return self.core.disp.read(loc)
         
         elif loc < 0xFF80:                          # Empty
             raise MemoryException("Attempted to read from empty " + str(hex(loc)))
