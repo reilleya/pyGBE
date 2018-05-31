@@ -41,7 +41,7 @@ class memory():
             return self.ram[0x2000 + loc - 0xFF80]
             
         elif loc == 0xFFFF:                         # Interrupt buffer read
-            return self.core.interruptBuff
+            return self.core.int.read(loc)
             
         else:
             raise MemoryException("Read out of range")
@@ -77,8 +77,8 @@ class memory():
         elif loc < 0xFFFF:                          # Ram write
             self.ram[0x2000 + loc - 0xFF80] = value
             
-        elif loc == 0xFFFF:                         # Interrupt buffer write. Is this legal?
-            self.core.interruptBuff = value
+        elif loc == 0xFFFF:                         # Interrupt buffer write
+            self.core.int.write(loc, value)
             
         else:
             raise MemoryException("Write out of range")
