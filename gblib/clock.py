@@ -1,5 +1,6 @@
 class clock():
-    def __init__(self):
+    def __init__(self, core):
+        self.core = core
         self.cycles = 0
         
     def reset(self):
@@ -7,6 +8,8 @@ class clock():
         
     def stepCycles(self, cycles):
         self.cycles += cycles
+        # Check timers
+        
         
     @property
     def time(self):

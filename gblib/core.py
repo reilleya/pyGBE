@@ -3,6 +3,7 @@ from . import functable as f
 from . import clock
 from . import rom
 from . import memory
+from . import interrupts
 
 def tc(num):
     return num - (256 * bool(num & 0x80))
@@ -15,15 +16,17 @@ class core():
         if romfile is not None:
             with open(romfile, "rb") as rfile:
                 self.rom = rom.rom(rfile.read())
+                
         self.mem = memory.memory(self)
-        
-        self.clock = clock()
+        self.int = interrupts.interrupts(self)
+        self.clock = clock(self)
         
         self.totalCycles = 0
         self.interruptsEnabled = True
         self.interruptBuff = 0x0
     
     def loop(self):
+        self.int.update()
         ind = self.reg.getReg('pc')
         op = self.getMem(ind)
         print('Running ' + str(hex(op)) + ' at ' + hex(ind))
@@ -143,7 +146,10 @@ class core():
                 self.reg.setReg('pc', self.reg.getReg('pc') + jump)
         
         elif f[opc][0] == "disInt":
-            self.toggleInterrupts(False)
+            self.int.disable()
+        
+        elif f[opc][0] == "enInt":
+            self.int.enable()
             
         elif f[opc][0] == "saveMem":
             offset = self.getMem(index + f[opc][1][2])
@@ -173,7 +179,7 @@ class core():
             if f[opc][1][0] is None:
                 res = self.pop()
                 if f[opc][1][3]:
-                    self.toggleInterrupts(True)
+                    self.int.enable()
                     
             elif bool((self.reg.getReg(f[opc][1][0]) & f[opc][1][1]) & f[opc][1][2]):
                 res = self.pop()

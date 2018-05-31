@@ -251,7 +251,7 @@ functable = {
         0xf8 : ["nimp"],
         0xf9 : ["load", ['hl'], 'sp', 1, 8],
         0xfa : ["nimp"],
-        0xfb : ["nimp"],
+        0xfb : ["enInt", [], None, 1, 4],
         0xfc : ["nimp"],
         0xfd : ["nimp"],
         0xfe : ["sub", ['a', 1], None, 2, 8], #CP
