@@ -4,20 +4,20 @@ class MemoryException(Exception):
 class memory():
     def __init__(self, core):
         self.core = core
-        self.ram = [0] * (0x2000 + 0x7F)            # 
+        self.ram = [0] * (0x2000 + 0x7F)            # 0x2000 bytes for 0xC000-0xE000, 0x7f for 0xFF80-0xFF
         
     def read(self, loc):
         if loc < 0x8000:                            # Cartridge read
             if self.core.rom is not None:
-                return self.core.rom.getAt(loc)
+                return self.core.rom.read(loc)
             else:
                 raise MemoryException("ROM read with no cartridge loaded")
         
         elif loc < 0xA000:                          # VRAM read
-            return None                             # NOP
+            raise MemoryException("VRAM reads not supported " + str(hex(loc)))
             
         elif loc < 0xC000:                          # Switchable RAM read
-            return None
+            raise MemoryException("Switchable RAM reads not supported " + str(hex(loc)))
             
         elif loc < 0xE000:                          # RAM read
             return self.ram[loc - 0xC000]
@@ -26,16 +26,16 @@ class memory():
             return self.ram[loc - 0xFE00]
             
         elif loc < 0xFEA0:                          # OAM read
-            return None
-            
+            raise MemoryException("OAM reads not supported " + str(hex(loc)))
+
         elif loc < 0xFF00:                          # Empty?
-            return None
+            raise MemoryException("Attempted to read from empty " + str(hex(loc)))
             
         elif loc < 0xFF4C:                          # IO ports
-            return None
+            raise MemoryException("IO port reads not supported " + str(hex(loc)))
         
         elif loc < 0xFF80:                          # Empty
-            return None
+            raise MemoryException("Attempted to read from empty " + str(hex(loc)))
             
         elif loc < 0xFFFF:                          # RAM write
             return self.ram[0x2000 + loc - 0xFF80]

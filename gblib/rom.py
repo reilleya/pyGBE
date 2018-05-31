@@ -30,6 +30,8 @@ class rom():
     def read(self, loc):
         if self.romType == 0:
             return self.romData[loc]
+        if self.romType == 1:
+            return self.romData[loc] # TODO: Implement bank switching
             
     def getName(self):
         name = ""

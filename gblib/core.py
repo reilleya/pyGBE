@@ -26,9 +26,9 @@ class core():
     def loop(self):
         ind = self.reg.getReg('pc')
         op = self.getMem(ind)
-        #print('Running ' + str(hex(op)) + ' at ' + hex(ind))
+        print('Running ' + str(hex(op)) + ' at ' + hex(ind))
         self.decodeAndExec(op, ind)
-        self.checkInterrupts()
+        #self.checkInterrupts() Disabled for now
     
     def decodeAndExec(self, opc, index):
         step = True
@@ -200,13 +200,6 @@ class core():
     
     def toggleInterrupts(self, setting):
         self.interruptsEnabled = setting
-    
-    def parseROM(self, rom):
-        with open(rom,'rb') as file:
-            cont = file.read()
-            for c in cont:
-                self.rom.append(int(c))
-        #print(self.rom)
     
     def getMem(self, index):    # Refactor this away
         return self.mem.read(index)
