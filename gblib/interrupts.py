@@ -29,7 +29,7 @@ class interrupts():
         
     def read(self, loc):
         if loc == 0xFF0F:
-            return combineBits(self.vblankTrig, self.LCDCTrig, self.timerTrig
+            return combineBits(self.vblankTrig, self.LCDCTrig, self.timerTrig,
                                 self.serialCompTrig, self.edgeTrig)
         
         if loc == 0xFFFF:
