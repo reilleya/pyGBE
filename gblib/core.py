@@ -10,13 +10,15 @@ def tc(num):
     return num - (256 * bool(num & 0x80))
 
 class core():
-    def __init__(self, romfile = None):
+    def __init__(self, romfile = None, romdata = None):
         self.reg = registers.registers()
         
         self.rom = None
         if romfile is not None:
             with open(romfile, "rb") as rfile:
                 self.rom = rom.rom(rfile.read())
+        elif romdata is not None:
+                self.rom = rom.rom(romdata)
                 
         self.mem = memory.memory(self)
         self.int = interrupts.interrupts(self)
@@ -175,24 +177,20 @@ class core():
             self.reg.setReg(fromReg, self.reg.getReg(fromReg) + f[opc][1][1])
         
         elif f[opc][0] == "push16":
-            val = self.reg.getReg(f[opc][1][0])
-            loc = self.reg.getReg("sp")
-            self.setMem(loc - 1, val & 0x00FF)
-            self.setMem(loc - 2, (val & 0xFF00) >> 8)
-            self.reg.setReg("sp", loc - 2)
+            self.push16(self.reg.getReg(f[opc][1][0]))
         
         elif f[opc][0] == "pop16":
-            res = self.pop()
+            res = self.pop16()
 
         elif f[opc][0] == "ret":
             res = self.reg.getReg("pc")
             if f[opc][1][0] is None:
-                res = self.pop()
+                res = self.pop16()
                 if f[opc][1][3]:
                     self.int.enable()
                     
             elif bool((self.reg.getReg(f[opc][1][0]) & f[opc][1][1]) & f[opc][1][2]):
-                res = self.pop()
+                res = self.pop16()
         
         elif f[opc][0] == "rst":
             val = self.reg.getReg("pc")
@@ -220,7 +218,6 @@ class core():
             else:
                 self.reg.setReg(f[opc][2], res)
                 
-
         if step:
             self.reg.setReg('pc', self.reg.getReg('pc') + f[opc][3])
             
@@ -235,12 +232,25 @@ class core():
     def setMem(self, index, value):     # Refactor this away
         #print("Saving " + str(hex(value)) + " to " + str(hex(index)))
         self.mem.write(index, value)
+
+    def push(self, value):
+        loc = self.reg.getReg("sp")
+        self.setMem(loc, value)
+        self.reg.setReg("sp", loc - 1)
+
+    def push16(self, value):
+        self.push(value & 0x00FF)
+        self.push((value & 0xFF00) >> 8)
     
     def pop(self):
-        loc = self.reg.getReg("sp")
-        v = [self.getMem(loc), self.getMem(loc + 1)]
-        self.reg.setReg("sp", loc + 2)
-        return v[1] + (v[0] << 8)
+        loc = self.reg.getReg("sp") + 1
+        self.reg.setReg("sp", loc)
+        return self.getMem(loc)
+
+    def pop16(self):
+        b1 = self.pop()
+        b2 = self.pop()
+        return b2 + (b1 << 8)
     
     def checkInterrupts(self):
         if self.interruptsEnabled:

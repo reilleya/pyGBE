@@ -1,37 +1,36 @@
 import gblib, time
 
-def testPushPop():
-    testCore = gblib.core()
-    testCore.reg.setReg('af', 0x01B0)
-    testCore.reg.setReg('bc', 0x0013)
-    testCore.reg.setReg('de', 0x00D8)
-    testCore.reg.setReg('hl', 0x014D)
-    testCore.reg.setReg('sp', 0x0009)
-    testCore.reg.setReg('pc', 0x0000)
-    
-    testCore.rom = [0xf3, 0xf5, 0x97, 0x47, 0x48, 0xc1, 0x0, 0x0, 0x0]
-    
-    for i in range(0, 7):
-        testCore.reg.dumpState('x')
-        print(testCore.rom)
-        testCore.loop()
+def makeTestRom(prog, rtype):
+    rom = [0] * 32768
+    rom[0x0134:0x0141] = [ord('T'), ord('E'), ord('S'), ord('T'), ord(' '), ord('R'), ord('O'), ord('M')]
+    rom[0x0147] = rtype
+    rom[0x0100] = 0
+    rom[0x0101:0x0103] = [0xC3, 0x50, 0x01]
 
-def testReset():
-    testCore = gblib.core()
+    for i in range(0, len(prog)):
+        rom[0x0150 + i] = prog[i]
+
+    return rom
+
+def testPushPop():
+    prog = [0xC5, 0xF1]
+    rom = makeTestRom(prog, 0)
+    testCore = gblib.core(romdata = rom)
     testCore.reg.setReg('af', 0x01B0)
     testCore.reg.setReg('bc', 0x0013)
     testCore.reg.setReg('de', 0x00D8)
     testCore.reg.setReg('hl', 0x014D)
-    testCore.reg.setReg('sp', 0x0014)
-    testCore.reg.setReg('pc', 0x0000)
+    testCore.reg.setReg('sp', 0xFFFE)
+    testCore.reg.setReg('pc', 0x0100)
     
-    testCore.rom = [0xf3, 0xd7, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
-                    0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0xd7, 0x0, 0x0]
-    
-    for i in range(0, 20):
+    print("Start: ")
+    testCore.reg.dumpState('x')
+    print()
+
+    print("Run: ")
+    for i in range(0, len(prog) + 2):
         testCore.loop()
         testCore.reg.dumpState('x')
-        print(testCore.rom)
 
 if __name__ == '__main__':
-    testReset()
+    testPushPop()

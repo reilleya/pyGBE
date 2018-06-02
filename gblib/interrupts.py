@@ -67,5 +67,5 @@ class interrupts():
                     
             if jmpAddr is not None:
                 self.enabled = False
-                self.core.push(self.core.reg.getReg("sp"))
+                self.core.push16(self.core.reg.getReg("sp"))
                 self.core.reg.setReg("sp", jmpAddr)

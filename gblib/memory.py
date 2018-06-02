@@ -62,7 +62,7 @@ class memory():
             raise MemoryException("Read out of range")
             
     def write(self, loc, value):
-        if loc < 0x8000:                            # Cartridge write. Error.
+        if loc < 0x8000:                            # Cartridge write
             self.core.rom.write(loc, value)
         
         elif loc < 0xA000:                          # VRAM write
