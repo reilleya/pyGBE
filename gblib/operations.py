@@ -205,7 +205,7 @@ functable = {
         0xca : ["nimp"],
         0xcb : ["nimp"],
         0xcc : ["nimp"],
-        0xcd : ["nimp"],
+        0xcd : ["call", [None, None, None, 1, 2], "pc", 3, 12],
         0xce : ["nimp"],
         0xcf : ["rst", [0x08], "pc", 1, 32],
         0xd0 : ["ret", ['f', 0x8, 0x0, False], "pc", 1, 8],

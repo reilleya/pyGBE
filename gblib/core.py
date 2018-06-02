@@ -200,6 +200,19 @@ class core():
             self.reg.setReg("sp", loc - 2)
             res = f[opc][1][0]
         
+        elif f[opc][0] == "call": # ["call", [reg, mask, care, 1, 2], "pc", 3, 12]
+            res = self.reg.getReg("pc")
+            newAddr = self.getMem(index + f[opc][1][3]) + self.getMem(index + self.getMem(f[opc][1][4]) << 8)
+            shouldCall = False
+            if f[opc][1][0] is None:
+                shouldCall = True
+            elif bool((self.reg.getReg(f[opc][1][0]) & f[opc][1][1]) & f[opc][1][2]):
+                shouldCall = True
+            if shouldCall:
+                self.push16(res)
+                res = newAddr + 1
+                
+        
         elif f[opc][0] == "nop":
             pass
         
