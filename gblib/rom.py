@@ -16,13 +16,15 @@ class rom():
             print("ROM only detected")
         elif self.romType == 1:
             self.mode = 0
-            print("")
+            print("MCB1")
         else:
             raise ROMException("Unsupported ROM type #"+str(self.romType))
     
     def write(self, loc, value):
         if self.romType == 0:
-            raise ROMException("ROM type 0 does not support writes")
+            #raise ROMException("ROM type 0 does not support writes") Annoyingly, some games do this anyway
+            print("Warning, ROM only cartridges do not support writes")
+            
         elif self.romType == 1:
             if loc >= 0x6000 and loc <= 0x7FFF:
                 self.mode = loc & 0x1

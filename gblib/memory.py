@@ -63,7 +63,7 @@ class memory():
             
     def write(self, loc, value):
         if loc < 0x8000:                            # Cartridge write. Error.
-            raise MemoryException("Attempted to write to ROM")
+            self.core.rom.write(loc, value)
         
         elif loc < 0xA000:                          # VRAM write
             pass                                    # NOP

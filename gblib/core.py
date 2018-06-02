@@ -115,7 +115,7 @@ class core():
             res = self.reg.getReg(f[opc][1][0]) + 1
             self.reg.setBit('f', 'z', res == 0)
             self.reg.setBit('f', 'n', False)
-            self.reg.setBit('f', 'h', (self.reg.getReg(f[opc][1][0]) & 0xF) + 1 > 0xF)
+            self.reg.setBit('f', 'h', self.reg.getReg(f[opc][1][0]) & 0x0F == 0x00)
         
         elif f[opc][0] == "inc16": #Needed for 16 bit incs because flags aren't updated?
             res = self.reg.getReg(f[opc][1][0]) + 1
@@ -127,7 +127,7 @@ class core():
             res = self.reg.getReg(f[opc][1][0]) - 1
             self.reg.setBit('f', 'z', res == 0)
             self.reg.setBit('f', 'n', True)
-            self.reg.setBit('f', 'h', not (self.reg.getReg(f[opc][1][0]) & 0x0F) < 1 & 0x0F)
+            self.reg.setBit('f', 'h', self.reg.getReg(f[opc][1][0]) & 0x0F == 0x0F)
         
         elif f[opc][0] == "loadcn":
             res = self.getMem(index + f[opc][1][0])
@@ -155,7 +155,10 @@ class core():
             self.int.enable()
             
         elif f[opc][0] == "saveMem":
-            offset = self.getMem(index + f[opc][1][2])
+            if type(f[opc][1][2]) is str:
+                offset = self.reg.getReg(f[opc][1][2])
+            else:
+                offset = self.getMem(index + f[opc][1][2])
             self.setMem(f[opc][1][1] + offset, self.reg.getReg(f[opc][1][0]))
         
         elif f[opc][0] == "loadMem":
@@ -165,7 +168,11 @@ class core():
         elif f[opc][0] == "ldd":
             self.setMem(self.reg.getReg(f[opc][1][1]), self.reg.getReg(f[opc][1][0]))
             res = self.reg.getReg(f[opc][1][1]) - 1
-            
+        
+        elif f[opc][0] == "loadPointer":
+            fromReg = f[opc][1][0][1:]
+            res = self.getMem(self.reg.getReg(fromReg))
+            self.reg.setReg(fromReg, self.reg.getReg(fromReg) + f[opc][1][1])
         
         elif f[opc][0] == "push16":
             val = self.reg.getReg(f[opc][1][0])
@@ -205,7 +212,14 @@ class core():
             raise NameError("Opcode not found")
         
         if f[opc][2] is not None:
-            self.reg.setReg(f[opc][2], res)
+            if f[opc][2][0] == "*":
+                self.setMem(self.reg.getReg(f[opc][2][1:]), res)
+            elif f[opc][2][0] == "+":
+                if f[opc][2][1] == "2":
+                    self.setMem(self.getMem(index + 1) + (self.getMem(index + 2) << 8), res)
+            else:
+                self.reg.setReg(f[opc][2], res)
+                
 
         if step:
             self.reg.setReg('pc', self.reg.getReg('pc') + f[opc][3])
