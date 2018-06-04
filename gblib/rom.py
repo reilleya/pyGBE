@@ -9,14 +9,15 @@ class rom():
         self.detectType()
         
     def detectType(self):
-        print("Booting " + self.getName())
-        print("ROM type: " + str(self.romData[0x147]))
+        #print("Booting " + self.getName())
+        #print("ROM type: " + str(self.romData[0x147]))
         self.romType = self.romData[0x147]
         if self.romType == 0:
-            print("ROM only detected")
+            pass
+            #print("ROM only detected")
         elif self.romType == 1:
             self.mode = 0
-            print("MCB1")
+            #print("MCB1")
         else:
             raise ROMException("Unsupported ROM type #"+str(self.romType))
     

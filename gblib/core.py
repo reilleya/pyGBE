@@ -34,7 +34,7 @@ class core():
         self.int.update()
         ind = self.reg.getReg('pc')
         op = self.getMem(ind)
-        print('Running ' + str(hex(op)) + ' at ' + hex(ind))
+        #print('Running ' + str(hex(op)) + ' at ' + hex(ind))
         self.decodeAndExec(op, ind)
         #self.checkInterrupts() Disabled for now
     
@@ -202,7 +202,7 @@ class core():
         
         elif f[opc][0] == "call": # ["call", [reg, mask, care, 1, 2], "pc", 3, 12]
             res = self.reg.getReg("pc")
-            newAddr = self.getMem(index + f[opc][1][3]) + self.getMem(index + self.getMem(f[opc][1][4]) << 8)
+            newAddr = self.getMem(index + f[opc][1][3]) + (self.getMem(index + self.getMem(f[opc][1][4])) << 8)
             shouldCall = False
             if f[opc][1][0] is None:
                 shouldCall = True

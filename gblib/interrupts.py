@@ -60,6 +60,11 @@ class interrupts():
     def trigger(self, type):
         if self.enabled:
             jmpAddr = None
+            if type == 1: # V-Blank
+                if self.vblankEnabled:
+                    self.vblankTrig = True
+                    jmpAddr = 0x0040
+
             if type == 2: # Timer
                 if self.timerEnabled:
                     self.timerTrig = True

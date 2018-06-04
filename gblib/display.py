@@ -17,10 +17,11 @@ class display():
         
     def update(self):
         if self.core.clock.cycles % 456 == 0:
-            print("LY!")
+            #print("LY!")
             self.ycoord += 1
             if self.ycoord == 144:
-                print("VBLANK")
+                pass
+                #print("VBLANK")
             if self.ycoord == 155:
                 self.ycoord = 0
                 
