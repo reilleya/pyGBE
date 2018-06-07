@@ -32,7 +32,8 @@ class memory():
             raise MemoryException("Attempted to read from empty " + str(hex(loc)))
             
         elif loc == 0xFF00:
-            raise MemoryException("Gamepad reads not supported " + str(hex(loc)))
+            print("Warning: Gamepad writes not supported " + str(hex(loc)))
+            return 0x00
         
         elif loc < 0xFF03:
             raise MemoryException("Serial reads not supported " + str(hex(loc)))
@@ -83,8 +84,23 @@ class memory():
         elif loc < 0xFF00:                          # Empty?
             pass
             
-        elif loc < 0xFF4C:                          # IO ports
-            pass
+        elif loc == 0xFF00:
+            print("Warning: Gamepad writes not supported " + str(hex(loc)))
+        
+        elif loc < 0xFF03:
+            print("Warning: Serial writes not supported " + str(hex(loc)))
+            
+        elif loc < 0xFF08:
+            return self.core.clock.write(loc, value)
+        
+        elif loc == 0xFF0F:
+            return self.core.int.write(loc, value)
+            
+        elif loc < 0xFF3F:
+            print("Warning: Sound writes not supported " + str(hex(loc)))
+        
+        elif loc < 0XFF4C:
+            return self.core.disp.write(loc, value)
         
         elif loc < 0xFF80:                          # Empty
             pass
