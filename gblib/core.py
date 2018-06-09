@@ -194,6 +194,7 @@ class core():
             res = self.reg.getReg(ins[1][1]) - 1
         
         elif ins[0] == "loadPointer":
+            step = ins[1][2]
             fromReg = ins[1][0][1:]
             res = self.getMem(self.reg.getReg(fromReg))
             self.reg.setReg(fromReg, self.reg.getReg(fromReg) + ins[1][1])
@@ -216,6 +217,7 @@ class core():
                 res = self.pop16()
         
         elif ins[0] == "rst":
+            step = False
             val = self.reg.getReg("pc")
             loc = self.reg.getReg("sp")
             self.setMem(loc - 1, val & 0x00FF)
