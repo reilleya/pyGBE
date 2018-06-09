@@ -146,6 +146,9 @@ class core():
         
         elif ins[0] == "cbmode":
             self.cbmode = True
+
+        elif ins[0] == "res":
+            res = self.reg.getReg(ins[1][0]) & (0xFF - (2 ** ins[1][1]))
         
         elif ins[0] == "loadcn":
             res = self.getMem(index + ins[1][0])
@@ -171,7 +174,11 @@ class core():
                 #step = False <- maybe not?
                 jump = tc(self.getMem(index + ins[1][2]))
                 self.reg.setReg('pc', self.reg.getReg('pc') + jump)
-        
+
+        elif ins[0] == "jumpReg":
+            step = False
+            res = self.reg.getReg(ins[1][0])
+
         elif ins[0] == "disInt":
             self.int.disable()
         
@@ -218,11 +225,7 @@ class core():
         
         elif ins[0] == "rst":
             step = False
-            val = self.reg.getReg("pc")
-            loc = self.reg.getReg("sp")
-            self.setMem(loc - 1, val & 0x00FF)
-            self.setMem(loc - 2, (val & 0xFF00) >> 8)
-            self.reg.setReg("sp", loc - 2)
+            self.push16(self.reg.getReg("pc") + ins[3])
             res = ins[1][0]
         
         elif ins[0] == "call": # ["call", [reg, mask, care, 1, 2], "pc", 3, 12]
