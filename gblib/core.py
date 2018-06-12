@@ -11,8 +11,9 @@ def tc(num):
     return num - (256 * bool(num & 0x80))
 
 class core():
-    def __init__(self, romfile = None, romdata = None):
-        self.reg = registers.registers()
+    def __init__(self, logger, romfile = None, romdata = None):
+        self.logger = logger
+        self.reg = registers.registers(self)
         
         self.rom = None
         if romfile is not None:
@@ -26,10 +27,21 @@ class core():
         self.clock = clock(self)
         self.disp = display.display(self)
         
+        self.loadDefault()
+        
         self.cbmode = False
-        self.totalCycles = 0
-        self.interruptsEnabled = True
-        self.interruptBuff = 0x0
+        
+    def loadDefault(self):
+        self.reg.setReg('af', 0x01B0)
+        self.reg.setReg('bc', 0x0013)
+        self.reg.setReg('de', 0x00D8)
+        self.reg.setReg('hl', 0x014D)
+        self.reg.setReg('sp', 0xFFFE)
+        self.reg.setReg('pc', 0x0100)
+        
+    def loopUntil(self, reg, value):
+        while self.reg.getReg(reg) != value:
+            self.loop()
     
     def loop(self):
         self.disp.update()
@@ -39,9 +51,8 @@ class core():
             ind -= 1
             print(hex(self.getMem(ind)))
         op = self.getMem(ind)
-        #print('Running ' + str(hex(op)) + ' at ' + hex(ind))
+        self.logger.log('Running ' + str(hex(op)) + ' at ' + hex(ind))
         self.decodeAndExec(op, ind)
-        #self.checkInterrupts() Disabled for now
     
     def decodeAndExec(self, opc, index):
         step = True
@@ -198,7 +209,7 @@ class core():
         
         elif ins[0] == "ldd":
             self.setMem(self.reg.getReg(ins[1][1]), self.reg.getReg(ins[1][0]))
-            res = self.reg.getReg(ins[1][1]) - 1
+            res = self.reg.getReg(ins[1][1]) - ins[1][2]
         
         elif ins[0] == "loadPointer":
             step = ins[1][2]
@@ -265,9 +276,6 @@ class core():
             
         self.clock.stepCycles(ins[4])
     
-    def toggleInterrupts(self, setting):
-        self.interruptsEnabled = setting
-    
     def getMem(self, index):    # Refactor this away
         return self.mem.read(index)
         
@@ -294,16 +302,3 @@ class core():
         b2 = self.pop()
         return b2 + (b1 << 8)
     
-    def checkInterrupts(self):
-        if self.interruptsEnabled:
-            intf = self.getMem(0xFF0F) & self.getMem(0xFFFF)
-            if intf & 0x1: # Bit 0, V-blank
-                print("V-blank")
-            if intf & 0x2: # Bit 1, LCDC
-                print("LCDC")
-            if intf & 0x4: # Bit 2, Timer
-                print("Timer")
-            if intf & 0x8: # Bit 3, Serial I/O
-                print("Serial transfer complete")
-            if intf & 0x10: # Bit 4, Pin flip
-                print("Bit flip")

@@ -6,3 +6,4 @@ from .rom import *
 from .memory import *
 from .interrupts import *
 from .display import *
+from .logger import *

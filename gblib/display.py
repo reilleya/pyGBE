@@ -36,7 +36,9 @@ class display():
             pygame.display.flip()
         
     def read(self, loc):
-        if loc == 0xFF42:
+        if loc == 0xFF40:
+            return 0
+        elif loc == 0xFF42:
             return self.scroll[1]
         elif loc == 0xFF43:
             return self.scroll[0]

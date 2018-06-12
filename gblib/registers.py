@@ -1,5 +1,6 @@
 class register16():
-    def __init__(self):
+    def __init__(self, bank):
+        self.bank = bank
         self.value = 0
         self.upperMask = 65280
         self.upperShift = 8
@@ -42,19 +43,20 @@ class register16():
         length = 4 if mode == 'x' else 16
         st = format(self.value, mode).zfill(length)
         half = int(length / 2)
-        print(label + ": " + st[:half] + " " + st[half:])
+        self.bank.core.logger.log(label + ": " + st[:half] + " " + st[half:])
 
 class registers():
-    def __init__(self):
-        self.afReg = register16()
-        self.bcReg = register16()
-        self.deReg = register16()
-        self.hlReg = register16()
-        self.spReg = register16()
-        self.pcReg = register16()
+    def __init__(self, core):
+        self.core = core
+        self.afReg = register16(self)
+        self.bcReg = register16(self)
+        self.deReg = register16(self)
+        self.hlReg = register16(self)
+        self.spReg = register16(self)
+        self.pcReg = register16(self)
     
     def dumpState(self, mode = 'b'):
-        print("Reg State:")
+        self.core.logger.log("Reg State:")
         self.afReg.dumpState(mode, "af")
         self.bcReg.dumpState(mode, "bc")
         self.deReg.dumpState(mode, "de")
