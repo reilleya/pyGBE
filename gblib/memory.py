@@ -67,7 +67,7 @@ class memory():
             self.core.rom.write(loc, value)
         
         elif loc < 0xA000:                          # VRAM write
-            pass                                    # NOP
+            self.core.disp.write(loc, value)
             
         elif loc < 0xC000:                          # Switchable RAM write
             pass

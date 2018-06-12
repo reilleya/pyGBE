@@ -1,7 +1,7 @@
 import pygame, threading
 
 class display():
-    def __init__(self, core, openWindow = False):
+    def __init__(self, core, openWindow = True):
         self.core = core
         
         self.ycoord = 0
@@ -9,6 +9,8 @@ class display():
         self.scroll = [0, 0]
         
         self.vblank = False
+        
+        self.vram = [0]*0x2000
         
         #Window stuff
         self.openWindow = openWindow
@@ -47,6 +49,17 @@ class display():
         print("Disp read from " + str(hex(loc)))
     
     def write(self, loc, value):
+        if loc >= 0x8000 and loc < 0xA000:
+            self.vram[loc - 0x8000] = value
+            self.window.fill([255, 255, 255])
+            if loc < 0x8100:
+                for i in range(0, 15):
+                    for y in range(0, 16):
+                        for x in range(0, 8):
+                            by = self.vram[(i * 16) + y]
+                            c = (255 * bool(by & (2 ** x)), 0, 0)
+                            self.window.set_at([(8 - x) + (i * 8), y], c)
+                pygame.display.flip()
         if loc == 0xFF42:
             self.scroll[1] = value
         elif loc == 0xFF43:
