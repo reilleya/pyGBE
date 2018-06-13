@@ -49,7 +49,7 @@ class core():
         ind = self.reg.getReg('pc')
         if self.cbmode:
             ind -= 1
-            print(hex(self.getMem(ind)))
+            self.logger.log(hex(self.getMem(ind)))
         op = self.getMem(ind)
         self.logger.log('Running ' + str(hex(op)) + ' at ' + hex(ind))
         self.decodeAndExec(op, ind)
@@ -189,6 +189,18 @@ class core():
         elif ins[0] == "jumpReg":
             step = False
             res = self.reg.getReg(ins[1][0])
+            
+        elif ins[0] == "jumpCond":
+            res = self.reg.getReg("pc")
+            newAddr = self.getMem(index + ins[1][3]) + (self.getMem(index + self.getMem(ins[1][4])) << 8)
+            shouldjump = False
+            if bool((self.reg.getReg(ins[1][0]) & ins[1][1]) == ins[1][2]):
+                step = False
+                res = newAddr
+        
+        elif ins[0] == "jumpRel":
+            res = self.reg.getReg("pc") + tc(self.getMem(index + ins[1][0]))
+            self.logger.log("Goin @ "+str(res))
 
         elif ins[0] == "disInt":
             self.int.disable()
@@ -216,6 +228,11 @@ class core():
             fromReg = ins[1][0][1:]
             res = self.getMem(self.reg.getReg(fromReg))
             self.reg.setReg(fromReg, self.reg.getReg(fromReg) + ins[1][1])
+        
+        elif ins[0] == "loadAbs":
+            addrb1 = self.getMem(index + ins[1][0])
+            addrb2 = self.getMem(index + ins[1][1])
+            res = self.getMem(addrb1 + (addrb2 << 8))
         
         elif ins[0] == "push16":
             self.push16(self.reg.getReg(ins[1][0]))
@@ -249,7 +266,7 @@ class core():
             elif bool((self.reg.getReg(ins[1][0]) & ins[1][1]) & ins[1][2]):
                 shouldCall = True
             if shouldCall:
-                print("Going to " + str(hex(newAddr)))
+                self.logger.log("Going to " + str(hex(newAddr)))
                 self.push16(res + 3)
                 res = newAddr
         
@@ -257,7 +274,7 @@ class core():
             pass
         
         elif ins[0] == "nimp":
-            raise NameError("OP " + str(hex(opc)) + " not implemented!")
+            raise NameError("OP " + str(hex(opc)) + " at " + str(hex(index)) + " not implemented!")
             
         else:
             raise NameError("Opcode not found")
@@ -289,6 +306,7 @@ class core():
         self.reg.setReg("sp", loc - 1)
 
     def push16(self, value):
+        self.logger.log("Pushing "+str(hex(value)))
         self.push(value & 0x00FF)
         self.push((value & 0xFF00) >> 8)
     

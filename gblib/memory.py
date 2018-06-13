@@ -32,7 +32,7 @@ class memory():
             raise MemoryException("Attempted to read from empty " + str(hex(loc)))
             
         elif loc == 0xFF00:
-            print("Warning: Gamepad writes not supported " + str(hex(loc)))
+            self.core.logger.log("Warning: Gamepad writes not supported " + str(hex(loc)))
             return 0x00
         
         elif loc < 0xFF03:
@@ -60,7 +60,7 @@ class memory():
             return self.core.int.read(loc)
             
         else:
-            raise MemoryException("Read out of range")
+            raise MemoryException("Read out of range (" + str(hex(loc)) +")")
             
     def write(self, loc, value):
         if loc < 0x8000:                            # Cartridge write
@@ -85,10 +85,10 @@ class memory():
             pass
             
         elif loc == 0xFF00:
-            print("Warning: Gamepad writes not supported " + str(hex(loc)))
+            self.core.logger.log("Warning: Gamepad writes not supported " + str(hex(loc)))
         
         elif loc < 0xFF03:
-            print("Warning: Serial writes not supported " + str(hex(loc)))
+            self.core.logger.log("Warning: Serial writes not supported " + str(hex(loc)))
             
         elif loc < 0xFF08:
             return self.core.clock.write(loc, value)
@@ -97,7 +97,7 @@ class memory():
             return self.core.int.write(loc, value)
             
         elif loc < 0xFF3F:
-            print("Warning: Sound writes not supported " + str(hex(loc)))
+            self.core.logger.log("Warning: Sound writes not supported " + str(hex(loc)))
         
         elif loc < 0XFF4C:
             return self.core.disp.write(loc, value)
@@ -112,4 +112,4 @@ class memory():
             self.core.int.write(loc, value)
             
         else:
-            raise MemoryException("Write out of range")
+            raise MemoryException("Write out of range (" + str(hex(loc)) +")")
