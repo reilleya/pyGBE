@@ -79,7 +79,7 @@ class memory():
             self.ram[loc - 0xFE00] = value
             
         elif loc < 0xFEA0:                          # OAM write
-            pass
+            self.core.disp.write(loc, value)
             
         elif loc < 0xFF00:                          # Empty?
             pass
