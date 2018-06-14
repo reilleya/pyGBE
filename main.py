@@ -1,18 +1,34 @@
 import gblib, time
 
-testCore = gblib.core("../roms/sml.gb")
+log = gblib.logger(False, None)
 
-testCore.reg.setReg('af', 0x01B0)
-testCore.reg.setReg('bc', 0x0013)
-testCore.reg.setReg('de', 0x00D8)
-testCore.reg.setReg('hl', 0x014D)
-testCore.reg.setReg('sp', 0xFFFE)
-testCore.reg.setReg('pc', 0x0100)
+testCore = gblib.core(log, "../roms/tetris.gb")
 
-#testCore.decodeAndExec(0x06, 0x1)
+st = time.time()
+for i in range(0, 1000000):
+    testCore.loop()
+print(time.time() -  st)
+print(testCore.clock.time)
+    
+#log.toConsole = True
+#testCore.reg.dumpState('x')
+    
+#st = time.time()
+#testCore.loopUntil("pc", 0x24AD)
+#t = time.time() -  st
+#print("BP hit")
+#log.toConsole = True
 
-testCore.reg.dumpState('x')
-print(testCore.clock)
+#print(testCore.clock)
+#print("Actual: " + str(t))
+#inp = ""
+#while inp != "q":
+#    if inp == "j":
+#        testCore.clock.stepCycles(456)
+#    testCore.loop()
+#    testCore.reg.dumpState('x')
+#    inp = input()
+
 
 # Benchmark
 """testCore.parseROM("../roms/sml.gb")

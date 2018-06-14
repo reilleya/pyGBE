@@ -64,8 +64,7 @@ class registers():
         self.spReg.dumpState(mode, "sp")
         self.pcReg.dumpState(mode, "pc")
     
-    def setReg(self, reg, value):
-        r = reg
+    def setReg(self, r, value):
         if r == 'a': self.afReg.setUpper(value)
         elif r == 'b': self.bcReg.setUpper(value)
         elif r == 'c': self.bcReg.setLower(value)
@@ -83,8 +82,7 @@ class registers():
         else:
             print("UNKNOWN REG")
         
-    def getReg(self, reg):
-        r = reg
+    def getReg(self, r):
         if r == 'a': return self.afReg.getUpper()
         elif r == 'b': return self.bcReg.getUpper()
         elif r == 'c': return self.bcReg.getLower()

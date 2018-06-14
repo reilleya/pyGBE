@@ -49,9 +49,9 @@ class core():
         ind = self.reg.getReg('pc')
         if self.cbmode:
             ind -= 1
-            self.logger.log(hex(self.getMem(ind)))
+            #self.logger.log(hex(self.getMem(ind)))
         op = self.getMem(ind)
-        self.logger.log('Running ' + str(hex(op)) + ' at ' + hex(ind))
+        #self.logger.log('Running ' + str(hex(op)) + ' at ' + hex(ind))
         self.decodeAndExec(op, ind)
     
     def decodeAndExec(self, opc, index):
