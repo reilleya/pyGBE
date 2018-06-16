@@ -53,7 +53,7 @@ class memory():
         elif loc < 0xFF80:                          # Empty
             raise MemoryException("Attempted to read from empty " + str(hex(loc)))
             
-        elif loc < 0xFFFF:                          # RAM write
+        elif loc < 0xFFFF:                          # RAM read
             return self.ram[0x2000 + loc - 0xFF80]
             
         elif loc == 0xFFFF:                         # Interrupt buffer read

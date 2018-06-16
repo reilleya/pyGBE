@@ -1,9 +1,9 @@
-import pygame
+import pygame, sys
 
 class sprite():
-    def __init__(self, display):
+    def __init__(self, display, patternNum = 0):
         self.display = display
-        self.patternNum = 0
+        self.patternNum = patternNum
         self.x = 0
         self.y = 0
         self.priority = False
@@ -19,6 +19,7 @@ class sprite():
         else:
             size = (8, 8)
             data = self.display.getPattern(True, self.patternNum)
+        #print(data)
         self.image = pygame.surface.Surface(size)
         self.image.fill((255, 255, 255))
 
@@ -61,7 +62,7 @@ class sprite():
             return (self.priority * 2**7) + (self.yFlip * 2**6) + (self.xFlip * 2**5) + (self.palNum * 2**5)
 
 class display():
-    def __init__(self, core, openWindow = False):
+    def __init__(self, core, openWindow = True):
         self.core = core
         
         self.ycoord = 0
@@ -74,9 +75,15 @@ class display():
         self.vram = [0]*0x2000
         self.oam = []
         
+        self.bgmode = False
+        
         self.sprites = []
         for i in range(0, 40):
             self.sprites.append(sprite(self))
+            
+        self.tiles = []
+        for i in range(0, 256):
+            self.tiles.append(sprite(self, i))
         
         self.largeSprites = False #False for 8x8, True for 8x16
         
@@ -84,7 +91,8 @@ class display():
         self.openWindow = openWindow
         if self.openWindow:
             pygame.init()
-            self.window = pygame.display.set_mode([160, 288])
+            pygame.display.set_caption("Gæm Bœ")
+            self.window = pygame.display.set_mode([160, 144])
             self.window.fill([255, 255, 255])
         
     def update(self):
@@ -94,17 +102,23 @@ class display():
             self.core.logger.log("LY!")
             self.ycoord += 1
             if self.ycoord == 144:
-                pass
+                if self.openWindow:
+                    self.window.fill([200, 255, 255])
+                    for y in range(0, 32):
+                        for x in range(0, 32):
+                            ind = 0x9800 + (y * 32) + x
+                            tile = self.vram[ind - 0x8000]
+                            self.tiles[tile].draw()
+                            self.window.blit(self.tiles[tile].image, (x * 8, y * 8))
+                    #self.drawTiles()
+                    for event in pygame.event.get():
+                        if event.type == pygame.QUIT:
+                            sys.exit()
+                    
+                    pygame.display.flip()
                 #print("VBLANK")
             if self.ycoord == 155:
                 self.ycoord = 0
-
-            if self.openWindow:
-                for event in pygame.event.get():
-                    if event.type == pygame.QUIT:
-                        print("exit")
-                
-                pygame.display.flip()
     
     def getPattern(self, sprite, number):
         if sprite:
@@ -121,25 +135,29 @@ class display():
             return self.ycoord
         self.core.logger.log("Disp read from " + str(hex(loc)))
     
+    def drawTiles(self):
+        if self.openWindow:
+            y = 0
+            x = 0
+            for i in range(0, 256):
+                self.tiles[i].draw()
+                self.window.blit(self.tiles[i].image, (x * 8, 144 + (y * 8)))
+                x += 1
+                if x % 16 == 0:
+                    y += 1
+                    x = 0
+            pygame.display.flip()
+    
     def write(self, loc, value):
         if loc >= 0x8000 and loc < 0xA000:
             self.vram[loc - 0x8000] = value
-            
-            if self.openWindow:
-                self.window.fill([200, 255, 255])
-                for x in range(0, 40):
-                    self.sprites[x].draw()
-                    self.window.blit(self.sprites[x].image, (x*8, 144))
-                pygame.display.flip()
-            
+            #self.drawTiles()
         elif loc < 0xFEA0:
             self.sprites[int((loc - 0xFE00)/ 4)].write(loc % 4, value)
-            if self.openWindow:
-                self.window.fill([200, 255, 255])
-                for s in self.sprites:
-                    s.draw()
-                    self.window.blit(s.image, (s.x - 8, s.y - 16))
-                pygame.display.flip()
+        
+        elif loc == 0xFF40:
+            print(bin(value))
+        
         elif loc == 0xFF42:
             self.scroll[1] = value
         elif loc == 0xFF43:
@@ -149,4 +167,5 @@ class display():
         elif loc == 0xFF46:
             print("OAM AT " + str(hex(value)))
         else:
-            self.core.logger.log("Disp write to " + str(hex(loc)) + ", " + str(hex(value)))
+            pass
+            #self.core.logger.log("Disp write to " + str(hex(loc)) + ", " + str(hex(value)))
